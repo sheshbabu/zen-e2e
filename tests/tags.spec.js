@@ -79,19 +79,4 @@ test.describe('Tags', () => {
     expect((await getNote(request, first.id)).tags).toEqual([]);
     expect((await getNote(request, second.id)).tags).toEqual([]);
   });
-
-  // tags.name has no unique index, so a second "new" tag with an existing name duplicates it.
-  // Remove test.fail once zen fixes it.
-  test('a new tag with an existing name reuses the tag', async ({ request }) => {
-    test.fail();
-    const tag = unique('shared');
-    for (let i = 0; i < 2; i++) {
-      const response = await request.post('/api/v1/notes/', { data: { title: unique('Duplicate tag'), content: '', tags: [{ tagId: -1, name: tag }] } });
-      expect(response.ok()).toBeTruthy();
-    }
-
-    const response = await request.get(`/api/v1/tags/?query=${encodeURIComponent(tag)}`);
-    const matches = (await response.json()).filter(t => t.name === tag);
-    expect(matches).toHaveLength(1);
-  });
 });

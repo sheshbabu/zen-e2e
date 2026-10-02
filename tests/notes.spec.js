@@ -52,10 +52,8 @@ test.describe('Notes', () => {
     expect((await getNote(request, note.id)).content).toBe('second draft');
   });
 
-  // Content state only syncs on blur, so any re-render mid-typing writes the old text back.
-  // Remove test.fail once zen fixes it.
+  // Content state must sync on input, so a re-render mid-typing keeps the typed text.
   test('typing survives a re-render before blur', async ({ page, request }) => {
-    test.fail();
     const note = await createNote(request, { title: unique('Rerender'), content: 'before' });
     await openNote(page, note.id);
 

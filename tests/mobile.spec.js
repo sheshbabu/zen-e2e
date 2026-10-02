@@ -31,10 +31,8 @@ test.describe('Mobile', () => {
     await expect(noteLink(page, title)).toBeVisible();
   });
 
-  // Saving a new note pushes /notes/{id} on top of /notes/new instead of replacing it.
-  // Back then reopens an empty new-note editor. Remove test.fail once zen fixes it.
+  // Saving a new note must replace /notes/new with /notes/{id}, so back returns to the list instead of an empty editor.
   test('back after creating a note returns to the list', async ({ page }) => {
-    test.fail();
     const title = unique('Back after create');
     await gotoPage(page, '/notes/');
 

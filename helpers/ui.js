@@ -143,19 +143,10 @@ export async function gotoPage(page, path) {
 export async function openNote(page, id) {
   await page.goto(`/notes/${id}`);
   await expect(page.getByText('Edit', { exact: true })).toBeVisible();
-  // The page fetches the note again once the list loads, and any re-render wipes typed text before blur.
-  await page.waitForLoadState('networkidle');
-}
-
-// Entering edit mode sets state again a frame after the textarea mounts, which wipes text typed in between.
-async function waitForEditorToSettle(page) {
-  await contentField(page).waitFor();
-  await waitForRender(page);
 }
 
 export async function startEditing(page) {
   await page.getByText('Edit', { exact: true }).click();
-  await waitForEditorToSettle(page);
 }
 
 export async function clickEditorMenuItem(page, name) {
@@ -169,7 +160,6 @@ export async function addTagInEditor(page, name) {
 }
 
 export async function writeNote(page, { title, content, tags = [] }) {
-  await waitForEditorToSettle(page);
   await titleField(page).fill(title);
   await contentField(page).fill(content);
   for (const tag of tags) {

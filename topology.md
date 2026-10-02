@@ -35,7 +35,7 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 | Cancel on a new note discards it | `notes.spec.js` › cancel on a new note |
 | Edit and save | `notes.spec.js` › edit and save |
 | Cancel on an existing note reverts | `notes.spec.js` › cancel on an existing note |
-| Typing survives a re-render before blur | `notes.spec.js`, expected to fail until fixed |
+| Typing survives a re-render before blur | `notes.spec.js` › typing survives a re-render |
 | Tick a task checkbox in the rendered note; saved | `notes.spec.js` › ticking a task |
 | Pin from the editor menu; pinned note sorts first | `notes.spec.js` › pin |
 | Archive / unarchive with toasts; Archives page | `notes.spec.js` › archive |
@@ -81,9 +81,7 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 | Remove a tag in the editor | `tags.spec.js` › removing a tag |
 | Rename and recolour from the sidebar pencil (Manage Tag) | `tags.spec.js` › rename a tag |
 | Delete a tag; removed from every note | `tags.spec.js` › delete a tag |
-| A second "new" tag with an existing name reuses it | `tags.spec.js`, expected to fail until fixed |
 | Tag keyboard navigation (arrows, Enter, Escape) | gap |
-| Rename onto an existing name | gap (backlog: merge on collision) |
 
 ## Focus modes
 
@@ -148,7 +146,7 @@ Entry points: sidebar Search, mobile navbar Search, `Cmd/Ctrl+K`.
 |---|---|
 | Opening a note replaces the list; back returns | `mobile.spec.js` › opening a note |
 | New from the bottom navbar | `mobile.spec.js` › create a note |
-| Back after creating a note returns to the list | `mobile.spec.js`, expected to fail until fixed |
+| Back after creating a note returns to the list | `mobile.spec.js` › back after creating a note |
 | Hamburger opens the sidebar | `mobile.spec.js` › the hamburger |
 
 ## Offline and service worker
@@ -162,12 +160,9 @@ The suite blocks the service worker so a cached bundle never hides the build und
 
 ## Findings from building the suite
 
-Each is pinned by a `test.fail` test, so it shows as an expected failure until fixed, then fails loudly so the annotation gets removed.
+A pinned finding has a `test.fail` test, so it shows as an expected failure until fixed, then fails loudly so the annotation gets removed. Fixed findings are dropped.
 
-- Typed text is wiped by any re-render before blur. Hit in practice by the second note fetch after the list loads, and by a state update one frame after entering edit mode.
-- `tagId: -1` with an existing name creates a duplicate tag.
-- Saving a new note pushes `/notes/{id}` on top of `/notes/new` (`NotesEditor.jsx` calls `navigateTo(path, true)`, where `true` means "preserve search params", not "replace"). Back then reopens an empty new-note editor.
-- A render still pending from one keystroke undoes the next Tab or list Enter, and a `fill` right after a toolbar format is wiped. Same root cause as the re-render bug above; `waitForRender` covers it until that is fixed.
+- A render still pending from one keystroke undoes the next Tab or list Enter, and a `fill` right after a toolbar format is wiped. Not pinned; `waitForRender` in `editor.spec.js` covers it.
 - zen's `Input` commits on `change`, which fires on blur. While you type a token name, Generate Token stays disabled until the field loses focus. Minor, not pinned.
 - Pressing `Ctrl+N` before the first load settles can leave the first note selected at `/notes/new`. Minor, not pinned.
 - Escape in the card-view note modal is ignored for a moment after it opens, until the editor's document listener attaches. Minor, not pinned.

@@ -7,7 +7,6 @@
 - All specs share one database, so name everything with `unique()`.
 - Create setup data through the API (`helpers/api.js`) and drive the UI only for the feature under test.
 - Canvas, templates and MCP are out of scope.
-- `openNote` and `startEditing` wait out re-renders that wipe typed text before blur. Remove those waits once zen fixes that bug.
 
 ## Selector notes
 
