@@ -2,6 +2,22 @@ import { test, expect } from '@playwright/test';
 import { unique, createNote, getNote } from '../helpers/api.js';
 import { openNote, startEditing, saveNote, contentField, formatButton, modalButton, noteLink, tocRail, tocItem, waitForRender } from '../helpers/ui.js';
 
+// Each toolbar format applied to the selected word "plain"; Horizontal Rule replaces the selection.
+const toolbarFormats = [
+  ['Strikethrough', '~~plain~~'],
+  ['Highlight', '==plain=='],
+  ['Inline Code', '`plain`'],
+  ['Heading 1', '# plain'],
+  ['Heading 2', '## plain'],
+  ['Heading 3', '### plain'],
+  ['Bullet List', '- plain'],
+  ['Numbered List', '1. plain'],
+  ['Todo List', '- [ ] plain'],
+  ['Quote', '> plain'],
+  ['Link', '[plain](url)'],
+  ['Horizontal Rule', '\n---\n'],
+];
+
 function sections(count) {
   return Array.from({ length: count }, (_, i) => `## Section ${i + 1}\n\nText ${i + 1}`).join('\n\n');
 }
@@ -21,6 +37,18 @@ test.describe('Editor', () => {
     await page.keyboard.press('ControlOrMeta+i');
     await expect(contentField(page)).toHaveValue('***plain***');
   });
+
+  for (const [format, expected] of toolbarFormats) {
+    test(`${format} from the toolbar formats the selection`, async ({ page, request }) => {
+      const note = await createNote(request, { title: unique(format), content: 'plain' });
+      await openNote(page, note.id);
+
+      await startEditing(page);
+      await contentField(page).selectText();
+      await formatButton(page, format).click();
+      await expect(contentField(page)).toHaveValue(expected);
+    });
+  }
 
   test('Enter continues a list, and Enter on an empty item ends it', async ({ page, request }) => {
     const note = await createNote(request, { title: unique('Lists'), content: '' });

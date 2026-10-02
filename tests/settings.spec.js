@@ -50,6 +50,9 @@ test.describe('Settings', () => {
     await changePassword(page, user.password, newPassword, 'does-not-match');
     await expect(page.getByText('Passwords do not match')).toBeVisible();
 
+    await changePassword(page, user.password, user.password);
+    await expect(page.getByText('New password must be different')).toBeVisible();
+
     await changePassword(page, 'wrong-current', newPassword);
     await expect(page.getByText('Incorrect password')).toBeVisible();
 

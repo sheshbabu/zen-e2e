@@ -1,6 +1,6 @@
 import { test, expect, request as playwrightRequest } from '@playwright/test';
 import { unique, createNote, listNoteIds } from '../helpers/api.js';
-import { gotoPage, openSettings, listItem, button, revokeButton } from '../helpers/ui.js';
+import { gotoPage, openSettings, listItem, button, revokeButton, waitForRender } from '../helpers/ui.js';
 
 // New request contexts inherit the project's logged-in storage state, and zen prefers the session over a bearer token.
 async function tokenRequest(baseURL, token) {
@@ -8,7 +8,13 @@ async function tokenRequest(baseURL, token) {
 }
 
 async function generateToken(page, name, tag) {
+  // The pane loads tokens and tags on open, and the re-render when they land wipes a name typed before blur.
+  const tokensLoaded = page.waitForResponse(response => response.url().includes('/api/v1/tokens/'));
+  const tagsLoaded = page.waitForResponse(response => response.url().includes('/api/v1/tags/'));
   await openSettings(page, 'API Tokens');
+  await tokensLoaded;
+  await tagsLoaded;
+  await waitForRender(page);
   await page.getByLabel('Token Name').fill(name);
   // zen's Input commits on change, which fires on blur, so Generate stays disabled until the field loses focus.
   await page.getByLabel('Token Name').blur();

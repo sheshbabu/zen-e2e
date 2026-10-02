@@ -22,7 +22,7 @@ Each action is marked with the test that covers it, **gap** when nothing does ye
 | Login, then Settings › Security › Log out; the session is invalid server-side | `settings.spec.js` › log in, then log out |
 | Onboarding with an invalid email or empty password | gap |
 | Password change: mismatch, wrong current password, success | `settings.spec.js` › password change |
-| Password change where new = old | gap |
+| Password change where new = old | `settings.spec.js` › password change validates |
 
 ## Notes
 
@@ -43,17 +43,17 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 | Clear Trash (confirm modal) permanently deletes | `notes.spec.js` › clear trash |
 | Untitled note shows its first words in the list | `notes.spec.js` › untitled note |
 | Copy / Share from the editor menu | gap (needs clipboard permission; Share needs `navigator.share`) |
-| Editor menu Created / Modified dates | gap |
+| Editor menu Created / Modified dates | `notes.spec.js` › the editor menu shows |
 | Auto save (Settings › Editor) saves without pressing Save | `settings.spec.js` › auto save |
 | Toolbar Bold and `Cmd+I` wrap the selection | `editor.spec.js` › bold from the toolbar |
-| Other toolbar formats (strikethrough, highlight, headings, quote, link, rule) | gap |
+| Other toolbar formats (strikethrough, highlight, code, headings, lists, quote, link, rule) | `editor.spec.js` › … from the toolbar formats the selection |
 | Enter continues a list, Tab/Shift+Tab indent, Enter on an empty item ends it | `editor.spec.js` › Enter continues a list |
 | Insert a table from the toolbar | `editor.spec.js` › insert a table; editing an existing table is a gap |
 | Fold a heading; the fold survives a reload | `editor.spec.js` › a folded heading |
 | Expand editor (`Cmd+\`) hides sidebar and list; table of contents jumps to a heading | `editor.spec.js` › expanded view |
 | Note link navigates; Shift+click opens it in the side panel | `editor.spec.js` › a note link |
 | Code block copy button | gap (needs clipboard permission) |
-| Load more (100 notes per page) | gap |
+| Load more (100 notes per page) | `notes.spec.js` › Load more |
 
 ## Images
 
@@ -61,7 +61,7 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 |---|---|
 | Upload via the dropzone file chooser; markdown inserted; image renders after save | `views.spec.js` › uploaded image |
 | Gallery view shows the image; click opens the lightbox | `views.spec.js` › uploaded image |
-| Paste and drag-and-drop upload | gap |
+| Paste and drag-and-drop upload | `views.spec.js` › pasting an image, dropping an image |
 | Similar images in the lightbox | gap (needs zen-intelligence) |
 
 ## Views
@@ -81,7 +81,7 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 | Remove a tag in the editor | `tags.spec.js` › removing a tag |
 | Rename and recolour from the sidebar pencil (Manage Tag) | `tags.spec.js` › rename a tag |
 | Delete a tag; removed from every note | `tags.spec.js` › delete a tag |
-| Tag keyboard navigation (arrows, Enter, Escape) | gap |
+| Tag keyboard navigation (arrows, Enter, Escape) | `tags.spec.js` › arrow keys move through suggestions |
 
 ## Focus modes
 
@@ -90,7 +90,8 @@ Entry points: sidebar New, mobile navbar New, `Ctrl+N`, `/notes/new`.
 | Create from the switcher with a tag; list and sidebar tags filtered | `focus.spec.js` › create a focus |
 | Rename | `focus.spec.js` › rename a focus |
 | Delete; returns to all notes | `focus.spec.js` › delete a focus |
-| Delete a focus whose tags were deleted | gap |
+| Delete a focus whose tags were deleted | `focus.spec.js` › delete a focus whose tags were deleted |
+| Renaming or deleting a tag from the sidebar updates the focus's tags without a reload | `focus.spec.js` › renaming a tag from the sidebar, deleting a tag from the sidebar |
 
 ## Search
 
@@ -103,7 +104,9 @@ Entry points: sidebar Search, mobile navbar Search, `Cmd/Ctrl+K`.
 | Tags tab; tag result filters the list | `search.spec.js` › a tag result |
 | `Cmd+K` opens, Enter opens the selected result, Escape closes | `search.spec.js` › Cmd+K … |
 | Recent searches when the query is empty | `search.spec.js` › an opened result shows under Recent |
-| Sort dropdown, preview pane toggle, arrow-key selection, Tab cycles tabs | gap |
+| Sort dropdown | `search.spec.js` › sorting by Created |
+| Preview pane toggle; stays off when reopened | `search.spec.js` › the preview pane toggles off |
+| Arrow-key selection, Tab cycles tabs | `search.spec.js` › arrow keys move the selection |
 | Similar Notes / Similar Images sections | gap (needs zen-intelligence) |
 
 ## Bulk actions

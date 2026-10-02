@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { unique, createNote } from '../helpers/api.js';
-import { noteLink, sidebarTag, listItem, tagInput, gotoPage, modalButton, clickEditIcon, focusSwitcher } from '../helpers/ui.js';
+import { unique, createNote, findTagId, deleteTag } from '../helpers/api.js';
+import { noteLink, sidebarTag, listItem, tagInput, gotoPage, modalButton, clickEditIcon, focusSwitcher, focusDialogTags, openTagSettings } from '../helpers/ui.js';
 
 function focusOption(page, name) {
   return listItem(page, name);
@@ -12,8 +12,8 @@ async function openSwitcher(page, activeName = 'Everything') {
   await focusSwitcher(page).click();
 }
 
-async function editFocus(page, name) {
-  await openSwitcher(page, name);
+async function editFocus(page, name, activeName = name) {
+  await openSwitcher(page, activeName);
   await clickEditIcon(focusOption(page, name));
   await expect(page.getByText('Edit Focus')).toBeVisible();
 }
@@ -70,6 +70,57 @@ test.describe('Focus modes', () => {
     await gotoPage(page, '/notes/');
     await createFocus(page, focusName, tag);
 
+    await editFocus(page, focusName);
+    await modalButton(page, 'Delete').click();
+
+    await expect(page).toHaveURL(/\/notes\/$/);
+    await openSwitcher(page);
+    await expect(focusOption(page, focusName)).toHaveCount(0);
+  });
+
+  test('renaming a tag from the sidebar renames it in the focus', async ({ page, request }) => {
+    const tag = unique('topic');
+    const renamed = unique('subject');
+    const focusName = unique('Topic');
+    await createNote(request, { title: unique('Topic note'), tags: [tag] });
+    await gotoPage(page, '/notes/');
+    await createFocus(page, focusName, tag);
+
+    await openTagSettings(page, tag);
+    await page.getByLabel('Tag Name').fill(renamed);
+    await modalButton(page, 'Update').click();
+    await expect(sidebarTag(page, renamed)).toBeVisible();
+
+    await editFocus(page, focusName);
+    await expect(focusDialogTags(page)).toHaveText([renamed]);
+  });
+
+  test('deleting a tag from the sidebar removes it from the focus', async ({ page, request }) => {
+    const tag = unique('retired');
+    const focusName = unique('Retired');
+    await createNote(request, { title: unique('Retired note'), tags: [tag] });
+    await gotoPage(page, '/notes/');
+    await createFocus(page, focusName, tag);
+
+    await openTagSettings(page, tag);
+    await modalButton(page, 'Delete').click();
+    await expect(sidebarTag(page, tag)).toHaveCount(0);
+
+    // Deleting a tag returns to all notes, so the switcher shows Everything.
+    await editFocus(page, focusName, 'Everything');
+    await expect(focusDialogTags(page)).toHaveCount(0);
+  });
+
+  test('delete a focus whose tags were deleted', async ({ page, request }) => {
+    const tag = unique('obsolete');
+    const focusName = unique('Obsolete');
+    await createNote(request, { title: unique('Obsolete note'), tags: [tag] });
+    await gotoPage(page, '/notes/');
+    await createFocus(page, focusName, tag);
+    await expect(page).toHaveURL(/focusId=\d+/);
+
+    await deleteTag(request, await findTagId(request, tag));
+    await page.reload();
     await editFocus(page, focusName);
     await modalButton(page, 'Delete').click();
 

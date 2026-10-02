@@ -66,6 +66,11 @@ export async function findTagId(request, name) {
   return tag === undefined ? null : tag.tagId;
 }
 
+export async function deleteTag(request, id) {
+  const response = await request.delete(`/api/v1/tags/${id}/`);
+  expect(response.ok()).toBeTruthy();
+}
+
 export async function listNoteIds(request) {
   const response = await request.get('/api/v1/notes/');
   expect(response.ok()).toBeTruthy();

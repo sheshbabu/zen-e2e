@@ -3,23 +3,33 @@ import { expect } from '@playwright/test';
 // Most zen controls are icon-only divs with no accessible name, so these use zen's CSS classes.
 // Keeping every class here means a rename in zen is fixed in one place.
 const EDITOR_MENU_BUTTON = '.notes-editor-menu > .ghost-button';
+const EDITOR_MENU_DATE = '.notes-editor-menu-footer > div';
 const EDIT_ICON = '.lucide-pencil-line';
 const NOTE_TITLE = '.notes-editor-title[contenteditable="true"]';
 const TAG_PILL = '.tag';
 const TAG_REMOVE_BUTTON = '.tag-remove';
 const TAG_COLOR_SWATCH = '.tag-color-swatch.color-';
+const TAG_SUGGESTION = '.notes-editor-tags .dropdown-option';
+const SELECTED = '.is-selected';
 const TASK_CHECKBOX = '.task-list-item-checkbox';
 const VERSION_ROW = '.note-versions-row';
 const SEARCH_RESULT = '.search-result-item';
+const SEARCH_PREVIEW = '.search-preview';
+const SEARCH_PREVIEW_TOGGLE = '.search-preview-toggle';
 const TOC_RAIL = '.toc-sidebar';
 const TOC_ITEM = '.toc-item';
 const API_TOKEN_ROW = '.api-token-item';
 const SETTINGS_TOGGLE_OPTION = '.settings-toggle-option';
 const FOCUS_SWITCHER_BUTTON = '.sidebar-focus-switcher .dropdown-button';
+const FOCUS_DIALOG_TAG = '.focus-dialog .tag';
 
 // The button shows the active focus name; matching that name as text can hit an option in the fading dropdown instead.
 export function focusSwitcher(page) {
   return page.locator(FOCUS_SWITCHER_BUTTON);
+}
+
+export function focusDialogTags(page) {
+  return page.locator(FOCUS_DIALOG_TAG);
 }
 
 // Most zen buttons are divs, and closed menus keep their items in the DOM, so match visible text instead of role.
@@ -54,6 +64,14 @@ export function tagInput(page) {
   return page.getByPlaceholder('Add Tags...');
 }
 
+export function tagSuggestions(page) {
+  return page.locator(TAG_SUGGESTION);
+}
+
+export function selectedTagSuggestion(page) {
+  return page.locator(TAG_SUGGESTION + SELECTED);
+}
+
 export function tagRemoveButton(page, name) {
   return page.locator(TAG_PILL, { hasText: name }).locator(TAG_REMOVE_BUTTON);
 }
@@ -73,6 +91,22 @@ export function versionRows(page) {
 // Result titles also appear in the list and preview behind the search modal.
 export function searchResult(page, text) {
   return page.locator(SEARCH_RESULT, { hasText: text });
+}
+
+export function searchResults(page) {
+  return page.locator(SEARCH_RESULT);
+}
+
+export function selectedSearchResult(page) {
+  return page.locator(SEARCH_RESULT + SELECTED);
+}
+
+export function searchPreview(page) {
+  return page.locator(SEARCH_PREVIEW);
+}
+
+export function searchPreviewToggle(page) {
+  return page.locator(SEARCH_PREVIEW_TOGGLE);
 }
 
 // The table of contents is a rail of bars that opens a popover of heading names on hover.
@@ -149,9 +183,18 @@ export async function startEditing(page) {
   await page.getByText('Edit', { exact: true }).click();
 }
 
-export async function clickEditorMenuItem(page, name) {
+export async function openEditorMenu(page) {
   await page.locator(EDITOR_MENU_BUTTON).click();
+}
+
+export async function clickEditorMenuItem(page, name) {
+  await openEditorMenu(page);
   await listItem(page, name).click();
+}
+
+// The menu footer holds a "Created" and a "Modified" row, each a label followed by a date.
+export function editorMenuDate(page, label) {
+  return page.locator(EDITOR_MENU_DATE, { hasText: label });
 }
 
 export async function addTagInEditor(page, name) {

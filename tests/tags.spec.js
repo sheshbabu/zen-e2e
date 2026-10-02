@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { unique, createNote, getNote, findTagId } from '../helpers/api.js';
-import { noteLink, sidebarTag, openTagSettings, listItem, openNote, startEditing, saveNote, addTagInEditor, tagInput, tagRemoveButton, tagColorSwatch, gotoPage, modalButton } from '../helpers/ui.js';
+import { noteLink, sidebarTag, openTagSettings, listItem, openNote, startEditing, saveNote, addTagInEditor, tagInput, tagRemoveButton, tagColorSwatch, tagSuggestions, selectedTagSuggestion, gotoPage, modalButton } from '../helpers/ui.js';
 
 test.describe('Tags', () => {
   test('a tag added in the editor appears in the sidebar and filters the list', async ({ page, request }) => {
@@ -31,6 +31,41 @@ test.describe('Tags', () => {
     await saveNote(page);
 
     expect((await getNote(request, note.id)).tags).toEqual([tag]);
+  });
+
+  test('arrow keys move through suggestions, Enter adds the selected one, Escape closes them', async ({ page, request }) => {
+    const prefix = unique('keyboard');
+    await createNote(request, { title: unique('Has tags'), tags: [`${prefix} one`, `${prefix} two`] });
+    const note = await createNote(request, { title: unique('Needs tag') });
+    await openNote(page, note.id);
+
+    await startEditing(page);
+    await tagInput(page).fill(prefix);
+    // Both tags and the "Add" option, in the order zen lists them.
+    await expect(tagSuggestions(page)).toHaveCount(3);
+    const options = await tagSuggestions(page).allTextContents();
+    await expect(selectedTagSuggestion(page)).toHaveText(options[0]);
+
+    await tagInput(page).press('ArrowDown');
+    await expect(selectedTagSuggestion(page)).toHaveText(options[1]);
+    await tagInput(page).press('ArrowUp');
+    await tagInput(page).press('ArrowUp');
+    await expect(selectedTagSuggestion(page)).toHaveText(options[2]);
+    await tagInput(page).press('ArrowDown');
+    await expect(selectedTagSuggestion(page)).toHaveText(options[0]);
+
+    await tagInput(page).press('ArrowDown');
+    await tagInput(page).press('Enter');
+    await expect(tagSuggestions(page)).toHaveCount(0);
+    await expect(tagInput(page)).toHaveValue('');
+
+    await tagInput(page).fill(prefix);
+    await expect(tagSuggestions(page)).not.toHaveCount(0);
+    await tagInput(page).press('Escape');
+    await expect(tagSuggestions(page)).toHaveCount(0);
+
+    await saveNote(page);
+    expect((await getNote(request, note.id)).tags).toEqual([options[1]]);
   });
 
   test('removing a tag in the editor', async ({ page, request }) => {

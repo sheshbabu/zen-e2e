@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { unique, createNote, getNote } from '../helpers/api.js';
-import { contentField, noteLink, toast, openNote, clickEditorMenuItem, writeNote, saveNote, sidebarLink, iconButton, gotoPage, startEditing, button, modalButton, taskCheckbox } from '../helpers/ui.js';
+import { unique, createNote, getNote, findTagId } from '../helpers/api.js';
+import { contentField, noteLink, toast, openNote, openEditorMenu, editorMenuDate, clickEditorMenuItem, writeNote, saveNote, sidebarLink, iconButton, gotoPage, startEditing, button, modalButton, taskCheckbox } from '../helpers/ui.js';
 
 test.describe('Notes', () => {
   test('create a note from the sidebar', async ({ page }) => {
@@ -86,6 +86,16 @@ test.describe('Notes', () => {
     await expect.poll(async () => (await getNote(request, note.id)).content).toBe('- [x] Book flights\n- [ ] Pack bags');
   });
 
+  test('the editor menu shows when the note was created and modified', async ({ page, request }) => {
+    const note = await createNote(request, { title: unique('Dated') });
+    await openNote(page, note.id);
+
+    await openEditorMenu(page);
+    const today = await page.evaluate(() => new Date().toLocaleDateString(undefined, { dateStyle: 'medium' }));
+    await expect(editorMenuDate(page, 'Created')).toHaveText(`Created${today}`);
+    await expect(editorMenuDate(page, 'Modified')).toHaveText(`Modified${today}`);
+  });
+
   test('pin moves a note to the top of the list', async ({ page, request }) => {
     const older = await createNote(request, { title: unique('Pinned later') });
     const newer = await createNote(request, { title: unique('Newer note') });
@@ -154,10 +164,28 @@ test.describe('Notes', () => {
     expect(response.ok()).toBe(false);
   });
 
+  test('Load more shows the notes past the first 100', async ({ page, request }) => {
+    const tag = unique('paged');
+    const prefix = unique('Paged');
+    for (let i = 1; i <= 101; i++) {
+      await createNote(request, { title: `${prefix} ${i}`, tags: [tag] });
+    }
+    // Scoping the list to one tag keeps the count independent of notes other specs created.
+    await gotoPage(page, `/notes/?tagId=${await findTagId(request, tag)}`);
+    const notes = page.getByRole('link', { name: prefix });
+
+    await expect(notes).toHaveCount(100);
+    await button(page, 'Load more').click();
+    await expect(notes).toHaveCount(101);
+    await expect(button(page, 'Load more')).toHaveCount(0);
+  });
+
   test('an untitled note shows its first words in the list', async ({ page, request }) => {
     const words = unique('untitled body text');
-    await createNote(request, { content: words });
-    await page.goto('/notes/');
+    const tag = unique('untitled');
+    await createNote(request, { content: words, tags: [tag] });
+    // Scoped to a tag, since notes saved in the same second as other specs' notes can sort past the first page.
+    await page.goto(`/notes/?tagId=${await findTagId(request, tag)}`);
     await expect(noteLink(page, words)).toBeVisible();
   });
 });
