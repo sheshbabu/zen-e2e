@@ -6,6 +6,9 @@ const EDITOR_MENU_BUTTON = '.notes-editor-menu > .ghost-button';
 const EDITOR_MENU_DATE = '.notes-editor-menu-footer > div';
 const EDIT_ICON = '.lucide-pencil-line';
 const NOTE_TITLE = '.notes-editor-title[contenteditable="true"]';
+const READ_MODE_TITLE = '.notes-editor-title';
+const EDITOR_TAG = '.notes-editor-tags .tag';
+const EDITOR_SCROLLER = '.notes-editor-container';
 const TAG_PILL = '.tag';
 const TAG_REMOVE_BUTTON = '.tag-remove';
 const TAG_COLOR_SWATCH = '.tag-color-swatch.color-';
@@ -54,6 +57,19 @@ export function formatButton(page, name) {
 
 export function titleField(page) {
   return page.locator(NOTE_TITLE);
+}
+
+// The list row keeps the old title, so the editor's own title element is the one to check.
+export function editorTitle(page) {
+  return page.locator(READ_MODE_TITLE);
+}
+
+export function editorTags(page) {
+  return page.locator(EDITOR_TAG);
+}
+
+export function editorScroller(page) {
+  return page.locator(EDITOR_SCROLLER);
 }
 
 export function contentField(page) {
@@ -166,6 +182,14 @@ export function toast(page, message) {
 // A frame for Preact to flush a pending render, so the next key isn't undone by it.
 export async function waitForRender(page) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
+
+// Headless pages never change visibility on their own, so a return to the tab is the event zen listens for.
+export async function returnToTab(page) {
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
 }
 
 // Waits for running animations, such as a modal sliding in, so layout measured afterwards is final.
