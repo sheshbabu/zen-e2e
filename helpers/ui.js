@@ -168,6 +168,11 @@ export async function waitForRender(page) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 
+// Waits for running animations, such as a modal sliding in, so layout measured afterwards is final.
+export async function waitForAnimations(page) {
+  await page.evaluate(() => Promise.all(document.getAnimations().map(animation => animation.finished)));
+}
+
 // Waits for the initial fetches, so a keypress or click doesn't land before the router and list are ready.
 export async function gotoPage(page, path) {
   await page.goto(path);
