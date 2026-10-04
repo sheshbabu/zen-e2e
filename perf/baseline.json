@@ -1,0 +1,16 @@
+{
+  "api: list notes, first page": 19.7,
+  "api: list notes, page 40": 39.9,
+  "api: list notes by tag": 2.8,
+  "api: get a large note": 0.8,
+  "api: search": 9.3,
+  "api: list tags": 3.3,
+  "api: save a large note": 3.5,
+  "ui: load the notes page, list shown": 322.5,
+  "ui: load the notes page, LCP": 316,
+  "ui: open a large note": 224.7,
+  "ui: type in a large note, worst keystroke": 24,
+  "ui: search": 241.6,
+  "ui: load more notes": 306.1,
+  "ui: filter by tag": 184.5
+}

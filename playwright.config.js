@@ -5,6 +5,7 @@ const port = process.env.ZEN_E2E_PORT || '8091';
 // The server starts on an empty database every run, so the functional and visual suites run separately.
 // The visual screenshots need a database holding only the seed, which the functional tests would fill with their own data.
 const isVisual = process.env.VISUAL === '1';
+const isPerf = process.env.PERF === '1';
 
 const onboarding = {
   name: 'setup',
@@ -53,6 +54,23 @@ const visualProjects = [
   ]),
 ];
 
+// The perf suite needs a database holding only its large seed, and Chromium for CPU throttling and Event Timing.
+const perfProjects = [
+  {
+    name: 'perf-seed',
+    testMatch: /perf\/seed\.setup\.js/,
+    dependencies: ['setup'],
+  },
+  {
+    name: 'perf',
+    testMatch: /perf\/.*\.spec\.js/,
+    dependencies: ['perf-seed'],
+    // Each test repeats its scenario on a throttled CPU, which takes longer than the default timeout.
+    timeout: 180_000,
+    use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, storageState: '.auth/user.json' },
+  },
+];
+
 export default defineConfig({
   testDir: '.',
   // All specs share one server and one user, so they run one at a time.
@@ -78,5 +96,5 @@ export default defineConfig({
     stdout: 'ignore',
     stderr: 'pipe',
   },
-  projects: [onboarding, ...(isVisual ? visualProjects : functionalProjects)],
+  projects: [onboarding, ...(isVisual ? visualProjects : isPerf ? perfProjects : functionalProjects)],
 });

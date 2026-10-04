@@ -26,6 +26,19 @@ const SETTINGS_TOGGLE_OPTION = '.settings-toggle-option';
 const FOCUS_SWITCHER_BUTTON = '.sidebar-focus-switcher .dropdown-button';
 const FOCUS_DIALOG_TAG = '.focus-dialog .tag';
 
+// The perf probe watches the DOM from inside the page, so it takes plain selectors rather than locators.
+export const PERF_TARGETS = {
+  listItem: '.notes-list-item',
+  firstListTitle: '.notes-list > div:first-child .notes-list-item-title',
+  renderedHeading: '.notes-editor-rendered h2',
+  searchSectionTitle: '.search-section-title',
+};
+
+// List rows are numbered from 1, and each sits in its own wrapper ahead of the Load more button.
+export function listRowSelector(position) {
+  return `.notes-list > div:nth-child(${position}) .notes-list-item`;
+}
+
 // The button shows the active focus name; matching that name as text can hit an option in the fading dropdown instead.
 export function focusSwitcher(page) {
   return page.locator(FOCUS_SWITCHER_BUTTON);

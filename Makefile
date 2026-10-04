@@ -1,4 +1,4 @@
-.PHONY: test test-headed stress heal visual visual-update report
+.PHONY: test test-headed stress heal visual visual-update perf perf-update report
 
 test:
 	npx playwright test
@@ -20,6 +20,12 @@ visual:
 
 visual-update:
 	VISUAL=1 npx playwright test --update-snapshots
+
+perf:
+	PERF=1 npx playwright test
+
+perf-update:
+	PERF=1 PERF_UPDATE=1 npx playwright test
 
 report:
 	npx playwright show-report
