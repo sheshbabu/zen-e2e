@@ -21,8 +21,14 @@ const SEARCH_PREVIEW = '.search-preview';
 const SEARCH_PREVIEW_TOGGLE = '.search-preview-toggle';
 const TOC_RAIL = '.toc-sidebar';
 const TOC_ITEM = '.toc-item';
-const API_TOKEN_ROW = '.api-token-item';
-const SETTINGS_TOGGLE_OPTION = '.settings-toggle-option';
+const API_TOKEN_ROW = '.settings-row';
+const API_TOKEN_EDITOR = '.api-token-editor';
+const API_TOKEN_COPY_BUTTON = '.api-token-copy-button';
+const SETTINGS_TAB = '.settings-tab';
+const COPY_ICON = '.lucide-copy';
+// zen's check icon carries the file-check class.
+const CHECK_ICON = '.lucide-file-check';
+const SETTINGS_TOGGLE_OPTION = '.settings-row';
 const FOCUS_SWITCHER_BUTTON = '.sidebar-focus-switcher .dropdown-button';
 const FOCUS_DIALOG_TAG = '.focus-dialog .tag';
 
@@ -147,8 +153,36 @@ export function tocItem(page, heading) {
   return page.locator(TOC_ITEM, { hasText: heading });
 }
 
+export function tokenRow(page, tokenName) {
+  return page.locator(API_TOKEN_ROW, { hasText: tokenName });
+}
+
 export function revokeButton(page, tokenName) {
-  return page.locator(API_TOKEN_ROW, { hasText: tokenName }).getByText('Revoke', { exact: true });
+  return tokenRow(page, tokenName).getByText('Revoke', { exact: true });
+}
+
+export function tokenEditButton(page, tokenName) {
+  return tokenRow(page, tokenName).getByText('Edit', { exact: true });
+}
+
+export function tokenEditor(page) {
+  return page.locator(API_TOKEN_EDITOR);
+}
+
+export function tokenCopyButton(page) {
+  return page.locator(API_TOKEN_COPY_BUTTON);
+}
+
+export function copyIcon(container) {
+  return container.locator(COPY_ICON);
+}
+
+export function checkIcon(container) {
+  return container.locator(CHECK_ICON);
+}
+
+export function settingsTab(page, name) {
+  return page.locator(SETTINGS_TAB).filter({ hasText: new RegExp(`^${escapeRegExp(name)}$`) });
 }
 
 export function settingsToggle(page, label) {
@@ -264,6 +298,5 @@ export async function openSearch(page) {
 
 export async function openSettings(page, tab) {
   await button(page, 'Settings').click();
-  // The open pane's heading can repeat the tab name, and the tab list comes first.
-  await page.getByText(tab, { exact: true }).first().click();
+  await settingsTab(page, tab).click();
 }

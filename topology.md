@@ -141,7 +141,11 @@ Entry points: sidebar Search, mobile navbar Search, `Cmd/Ctrl+K`.
 | Export → wipe → import round-trip | gap |
 | API Tokens: a read token scoped to a tag sees only that tag and can't write | `tokens.spec.js` › a read token scoped to a tag |
 | API Tokens: revoke stops the token working | `tokens.spec.js` › a revoked token |
-| API Tokens: several scopes, read and write access | gap |
+| API Tokens: copy button copies the new token and shows a check | `tokens.spec.js` › the copy button |
+| API Tokens: edit name and access, read and write access; the token follows | `tokens.spec.js` › editing a token |
+| API Tokens: cancel discards edits; a tag granted twice blocks Save | `tokens.spec.js` › cancel discards edits |
+| API Tokens: invalid update rejected, token left unchanged; unknown token 404 | `tokens.spec.js` › an invalid update |
+| API Tokens: several scopes on one token | gap |
 
 ## Mobile (below 948px)
 

@@ -77,3 +77,38 @@ export async function listNoteIds(request) {
   const body = await response.json();
   return body.notes.map(note => note.noteId);
 }
+
+// A grant on tagId 0 covers every tag.
+export const ALL_TAGS = 0;
+
+function toScopesPayload(scopes) {
+  return scopes.map(scope => ({ tagId: scope.tagId, canRead: scope.canRead, canWrite: scope.canWrite }));
+}
+
+export async function createToken(request, { name, scopes }) {
+  const payload = {
+    name: name,
+    scopes: toScopesPayload(scopes)
+  };
+  const response = await request.post('/api/v1/tokens/', { data: payload });
+  expect(response.ok()).toBeTruthy();
+  const body = await response.json();
+  return { id: body.tokenInfo.tokenId, token: body.token };
+}
+
+// Returns the response unchecked so a spec can assert on a rejected update.
+export async function updateToken(request, id, { name, scopes }) {
+  const payload = {
+    name: name,
+    scopes: toScopesPayload(scopes)
+  };
+  return request.put(`/api/v1/tokens/${id}/`, { data: payload });
+}
+
+export async function getToken(request, id) {
+  const response = await request.get('/api/v1/tokens/');
+  expect(response.ok()).toBeTruthy();
+  const tokens = await response.json();
+  const token = tokens.find(t => t.tokenId === id);
+  return { name: token.name, scopes: toScopesPayload(token.scopes) };
+}
