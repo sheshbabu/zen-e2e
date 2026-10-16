@@ -239,6 +239,11 @@ export async function returnToTab(page) {
   });
 }
 
+// A window left visible beside another app only gets focus back, so this is the event zen listens for.
+export async function returnToWindow(page) {
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+}
+
 // Waits for running animations, such as a modal sliding in, so layout measured afterwards is final.
 export async function waitForAnimations(page) {
   await page.evaluate(() => Promise.all(document.getAnimations().map(animation => animation.finished)));

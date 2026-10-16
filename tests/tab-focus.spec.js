@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { unique, createNote, updateNote } from '../helpers/api.js';
-import { openNote, startEditing, contentField, titleField, editorTitle, editorTags, editorScroller, returnToTab, waitForRender } from '../helpers/ui.js';
+import { openNote, startEditing, contentField, titleField, editorTitle, editorTags, editorScroller, returnToTab, returnToWindow, waitForRender } from '../helpers/ui.js';
 
 function isNoteFetch(request, id) {
   return request.method() === 'GET' && request.url().endsWith(`/api/v1/notes/${id}/`);
@@ -135,5 +135,45 @@ test.describe('Refresh on tab focus', () => {
 
     expect(await editorScroller(page).evaluate(scroller => scroller.scrollTop)).toBe(scrollTop);
     await expect(page.getByText('Line 150', { exact: true })).toBeInViewport();
+  });
+
+  test('returning to a visible window shows changes made elsewhere', async ({ page, request }) => {
+    const note = await createNote(request, { title: unique('Side by side'), content: 'old content' });
+    await openNote(page, note.id);
+
+    await waitForNextSecond();
+    await updateNote(request, note.id, { title: note.title, content: 'new content' });
+    const fetched = waitForNoteFetch(page, note.id);
+    await returnToWindow(page);
+    await fetched;
+
+    await expect(page.getByText('new content')).toBeVisible();
+  });
+
+  test('a tab switch fires both events and checks once', async ({ page, request }) => {
+    const note = await createNote(request, { title: unique('Both events'), content: 'content' });
+    await openNote(page, note.id);
+    // zen loads the note again once the list arrives, and that late fetch must not count as a check.
+    await page.waitForLoadState('networkidle');
+    const fetches = countNoteFetches(page, note.id);
+
+    await returnToTab(page);
+    await returnToWindow(page);
+    await page.waitForLoadState('networkidle');
+
+    expect(fetches.count).toBe(1);
+  });
+
+  test('moving focus inside the page does not check', async ({ page, request }) => {
+    const note = await createNote(request, { title: unique('Inner focus'), content: 'content' });
+    await openNote(page, note.id);
+    await page.waitForLoadState('networkidle');
+    const fetches = countNoteFetches(page, note.id);
+
+    // The editor is focusable, so a click on its title moves focus to it.
+    await editorTitle(page).click();
+    await page.waitForLoadState('networkidle');
+
+    expect(fetches.count).toBe(0);
   });
 });
