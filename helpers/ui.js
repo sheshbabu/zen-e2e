@@ -19,7 +19,7 @@ const VERSION_ROW = '.note-versions-row';
 const SEARCH_RESULT = '.search-result-item';
 const SEARCH_PREVIEW = '.search-preview';
 const SEARCH_PREVIEW_TOGGLE = '.search-preview-toggle';
-const TOC_RAIL = '.toc-sidebar';
+const TOC_RAIL = '.toc';
 const TOC_ITEM = '.toc-item';
 const API_TOKEN_ROW = '.settings-row';
 const API_TOKEN_EDITOR = '.api-token-editor';
@@ -144,7 +144,7 @@ export function searchPreviewToggle(page) {
   return page.locator(SEARCH_PREVIEW_TOGGLE);
 }
 
-// The table of contents is a rail of bars that opens a popover of heading names on hover.
+// The table of contents is a rail of bars that expands into heading names on hover.
 export function tocRail(page) {
   return page.locator(TOC_RAIL);
 }
